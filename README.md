@@ -30,7 +30,7 @@ Default credentials (change these in `docker-compose.yaml` before using in produ
 
 - Postgres user: `admin`
 - Postgres password: `Abcd1234`
-- pgAdmin email: `pgadmin@kaskade.com`
+- pgAdmin email: `admin@homelab.com`
 - pgAdmin password: `Abcd1234`
 
 Connect with psql:
@@ -113,3 +113,41 @@ This repository is provided under the terms of the LICENSE file in the repositor
 
 ---
 Last updated: Oct 31, 2025
+
+## Environment file (recommended)
+
+You can provide runtime configuration via a `.env` file in the repository root. A template is provided as `.env.example`. Copy it and edit values before bringing the stack up:
+
+```bash
+cp .env.example .env
+# edit .env
+```
+
+The Compose file will automatically pick up environment variables from `.env` when you use `docker compose`.
+
+## Makefile & helper scripts
+
+To make common tasks easier this repository includes a `Makefile` and small helper scripts under `scripts/`:
+
+- `Makefile` — convenience targets: `make up`, `make down`, `make restart`, `make logs`, `make backup`, `make restore`.
+- `scripts/backup.sh` — creates a compressed custom-format (`pg_dump -Fc`) backup and copies it to the host (default `./postgres.backup`).
+- `scripts/restore.sh` — restores a backup file into the running Postgres container.
+
+Examples:
+
+```bash
+# start the lab
+make up
+
+# create a backup
+make backup           # saves ./postgres.backup by default
+
+# restore from a specific file
+make restore FILE=./postgres.backup
+```
+
+Make the helper scripts executable if needed:
+
+```bash
+chmod +x scripts/*.sh
+```

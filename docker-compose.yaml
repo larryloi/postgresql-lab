@@ -1,32 +1,41 @@
 services:
-  db:
-    image: postgres:16.2
-    container_name: pgsql
-    restart: always
-    ports:
-      - "5432:5432"
+  postgres:
+    image: postgres:16
+    container_name: postgres-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: Abcd1234
-    command: postgres -c logging_collector=on -c log_destination=stderr -c log_directory=/logs
+      POSTGRES_DB: homelab
+      TZ: "Asia/Shanghai"
     volumes:
-      - ./db/data:/var/lib/postgresql/data
-      - ./db/logs:/logs
-      #- ./logs:/logs
-      #- local_pgdata:/var/lib/postgresql/data
-      
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin4_container
-    restart: always
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5050:80"
+      - "5432:5432"
+    networks:
+      - homelab_net
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: pgadmin
+    restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: pgadmin@kaskade.com
+      PGADMIN_DEFAULT_EMAIL: admin@homelab.com
       PGADMIN_DEFAULT_PASSWORD: Abcd1234
+      PGADMIN_CONFIG_SERVER_MODE: "False"   # allows multiple users in one session
+      TZ: "Asia/Shanghai"
     volumes:
-      - pgadmin-data:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - homelab_net
 
 volumes:
-  local_pgdata:
-  pgadmin-data:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  homelab_net:
